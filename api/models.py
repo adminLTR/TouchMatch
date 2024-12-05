@@ -18,6 +18,7 @@ class Room(models.Model):
     datetime_created = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de creación")
     individual = models.BooleanField(default=True, verbose_name="Individual")
     active = models.BooleanField(default=True, verbose_name="Activa")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return f"Sala {self.code}"
