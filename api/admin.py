@@ -24,7 +24,7 @@ class GameAdmin(admin.ModelAdmin):
 @admin.register(UserRegistration)
 class UserRegistrationAdmin(admin.ModelAdmin):
     list_display = ("id", "get_username", "esp32", "datetime_registration")
-    list_filter = ("room", "level", "active")
+    list_filter = ("esp32", "game",)
 
     @admin.display(description='Username', ordering='esp32__user__username')
     def get_username(self, obj):

@@ -11,7 +11,7 @@ class ESP32(models.Model):
     
     class Meta:
         verbose_name = "ESP32"
-        verbose__plural_name = "ESP32"
+        verbose_name_plural = "ESP32"
 
 class Room(models.Model):
     code = models.CharField(max_length=20, unique=True, verbose_name="Código")
@@ -24,7 +24,7 @@ class Room(models.Model):
     
     class Meta:
         verbose_name = "Sala"
-        verbose_plural_name = "Salas"
+        verbose_name_plural = "Salas"
 
 class Game(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE, verbose_name="Sala")
@@ -40,7 +40,7 @@ class Game(models.Model):
     
     class Meta:
         verbose_name = "Partida"
-        verbose_plural_name = "Partidas"
+        verbose_name_plural = "Partidas"
 
 class UserRegistration(models.Model):
     esp32 = models.ForeignKey(ESP32, on_delete=models.CASCADE, verbose_name="Placa")
@@ -55,5 +55,5 @@ class UserRegistration(models.Model):
     
     class Meta:
         verbose_name = "Partida de usuario"
-        verbose_plural_name = "Partidas de usuario"
+        verbose_name_plural = "Partidas de usuario"
 
