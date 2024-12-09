@@ -10,5 +10,6 @@ router.register(r'games', GameViewSet)
 router.register(r'user-registrations', UserRegistrationViewSet)
 
 urlpatterns = [
-    path('', include(router.urls))
+    path('', include(router.urls)),
+    path('esp32/game/info/<str:code>', esp32_game_info)
 ]

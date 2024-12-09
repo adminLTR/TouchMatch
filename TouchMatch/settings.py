@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-+u^!v64u)c5g*^x*(m**e_rnvlpo_0tsygv9$#ywclnj=mk87w
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -80,23 +80,16 @@ WSGI_APPLICATION = 'TouchMatch.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': os.getenv("DBNAME"),
-#         'USER': os.getenv("DBUSER"),
-#         'PASSWORD': os.getenv("DBPASSWORD"),
-#         'HOST': os.getenv("DBHOST"),
-#         'PORT': os.getenv("DBPORT"),
-#     }
-# }
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv("DBNAME"),
+        'USER': os.getenv("DBUSER"),
+        'PASSWORD': os.getenv("DBPASSWORD"),
+        'HOST': os.getenv("DBHOST"),
+        'PORT': os.getenv("DBPORT"),
     }
 }
-
 
 
 # Password validation
@@ -139,7 +132,10 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
+CORS_ALLOWED_ORIGINS = [
+    "http://192.168.1.15:5500",
+    "http://127.0.0.1:5500",
+]
 JAZZMIN_SETTINGS = {
     # title of the window (Will default to current_admin_site.site_title if absent or None)
     "site_title": "TouchMatch",

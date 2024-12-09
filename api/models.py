@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 class ESP32(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Código")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Usuario")
     code = models.CharField(max_length=20, unique=True, verbose_name="Código")
 
     def __str__(self):
@@ -32,7 +32,7 @@ class Game(models.Model):
     level = models.PositiveSmallIntegerField(default=1, verbose_name="Nivel")
     datetime_created = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de creación")
     begin_time = models.DateTimeField(null=True, blank=True, verbose_name="Fecha & Hora de Inicio")
-    end_time = models.DateTimeField(null=True, blank=True, verbose_name="Fecha & Hora de Fiin")
+    end_time = models.DateTimeField(null=True, blank=True, verbose_name="Fecha & Hora de Fin")
     active = models.BooleanField(default=False, verbose_name="Activo")
     sequence = models.CharField(max_length=300, null=True, blank=True, verbose_name="Secuencia")
 
