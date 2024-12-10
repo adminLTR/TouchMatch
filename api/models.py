@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+import random
 
 # Create your models here.
 class ESP32(models.Model):
@@ -14,7 +15,6 @@ class ESP32(models.Model):
         verbose_name_plural = "ESP32"
 
 class Room(models.Model):
-    code = models.CharField(max_length=20, unique=True, verbose_name="Código")
     datetime_created = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de creación")
     individual = models.BooleanField(default=True, verbose_name="Individual")
     active = models.BooleanField(default=True, verbose_name="Activa")
@@ -34,7 +34,22 @@ class Game(models.Model):
     begin_time = models.DateTimeField(null=True, blank=True, verbose_name="Fecha & Hora de Inicio")
     end_time = models.DateTimeField(null=True, blank=True, verbose_name="Fecha & Hora de Fin")
     active = models.BooleanField(default=False, verbose_name="Activo")
-    sequence = models.CharField(max_length=300, null=True, blank=True, verbose_name="Secuencia")
+    sequence = models.CharField(max_length=500, null=True, blank=True, verbose_name="Secuencia")
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            # 1212-2131-2112-1121-2121-1221-1232-1222-1233-1233
+            seq = ''
+            for i in range(100):
+                master_color = random.randint(0, 2)
+                master_num = random.randint(1, 2)
+                color = random.randint(0, 2)
+                num = random.randint(1, 2)
+                if self.level == 1:
+                    master_num = num = 2
+                seq += f'{master_color}{master_num}{color}{num}-'
+            self.sequence = seq
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Partida {self.room.code}-{self.pk}"

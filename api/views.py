@@ -87,3 +87,104 @@ def event_stream_esp32_game_info(esp32):
         }
         yield f"data: {json.dumps(resp)}\n\n"  # Enviar respuesta en formato SSE
         time.sleep(0.5)
+
+
+@csrf_exempt
+def create_room(request):
+    if request.method != "POST":
+        return JsonResponse({'message': 'Only POST method is allowed.'}, status=405)
+
+    try:
+        # Parsear el cuerpo de la solicitud como JSON
+        body = json.loads(request.body)
+        user_id = body.get("user_id")
+        individual = body.get("individual")
+        level = body.get("level")
+
+    except json.JSONDecodeError:
+        return JsonResponse({'message': 'Invalid JSON body.'}, status=400)
+
+    # Validar que los parámetros requeridos estén presentes
+    if not user_id or individual is None:
+        return JsonResponse({'message': 'Invalid BODY for request. Missing user_id or individual.'}, status=400)
+
+    try:
+        # Validar que el usuario existe con el user_id proporcionado
+        user = User.objects.get(pk=user_id)
+    except ObjectDoesNotExist:
+        return JsonResponse({'message': 'User does not exist.'}, status=400)
+    
+    room = Room.objects.filter(user=user, active=True)
+    if room:
+        return JsonResponse({'message': 'User can only have one active room'}, status=400)
+
+    # Crear la sala (Room) con los datos proporcionados
+    room = Room.objects.create(individual=individual, user=user)
+    game = Game.objects.create(room=room, level=level)
+
+    # Devolver la respuesta con la información de la sala creada
+    return JsonResponse({
+        'id': room.pk,
+        'individual': room.individual,
+        'active': room.active,
+        'creator': {
+            'id': room.user.pk,
+            'username': room.user.username
+        },
+        'game_created' : {
+            'id' : game.pk,
+            'level' : game.level,
+            'created_at' : game.datetime_created,
+        }
+    }, status=201)
+
+
+
+@csrf_exempt
+def join_room(request):
+    if request.method != "POST":
+        return JsonResponse({'message': 'Only POST method is allowed.'}, status=405)
+    try:
+        # Parsear el cuerpo de la solicitud como JSON
+        body = json.loads(request.body)
+        esp32_id = body.get("esp32_id")
+        room_id = body.get("room_id")
+    except json.JSONDecodeError:
+        return JsonResponse({'message': 'Invalid JSON body.'}, status=400)
+
+    try:
+        esp32 = ESP32.objects.get(esp32_id)
+    except ObjectDoesNotExist:
+        return JsonResponse({'message' : 'User does not exist'})
+    
+    try:
+        room = Room.objects.get(room_id)
+    except ObjectDoesNotExist:
+        return JsonResponse({'message' : 'Room does not exist'})
+    
+    last_game = Game.objects.filter(room=room).latest('datetime_created')
+    user_reg = UserRegistration.objects.create(esp32=esp32, game=last_game)
+    return JsonResponse({
+        'game_registered' : {
+            'level' : last_game.level,
+        },
+    })
+    
+
+@csrf_exempt
+def get_esp32_list_from_user(request, user_id:int):
+    try:
+        user = User.objects.get(user_id)
+    except ObjectDoesNotExist:
+        return JsonResponse({"message" : "User does not exist"}, status=400)
+
+    esp32_list = list(ESP32.objects.filter(user=user))
+    resp = [{
+        'id' : esp32.pk,
+        'code' : esp32.code,
+        'user' : {
+            'id' : esp32.user.pk,
+            'username' : esp32.user.username,
+        }
+    } for esp32 in esp32_list]
+    return JsonResponse(resp, status=200)
