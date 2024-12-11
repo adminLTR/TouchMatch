@@ -202,17 +202,17 @@ def close_room(request):
 @csrf_exempt
 def get_esp32_list_from_user(request, user_id:int):
     try:
-        user = User.objects.get(user_id)
+        user = User.objects.get(pk=user_id)
     except ObjectDoesNotExist:
         return JsonResponse({"message" : "User does not exist"}, status=400)
 
     esp32_list = list(ESP32.objects.filter(user=user))
-    resp = [{
+    resp = {'data': [{
         'id' : esp32.pk,
         'code' : esp32.code,
         'user' : {
             'id' : esp32.user.pk,
             'username' : esp32.user.username,
         }
-    } for esp32 in esp32_list]
+    } for esp32 in esp32_list]}
     return JsonResponse(resp, status=200)
