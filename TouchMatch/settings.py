@@ -78,10 +78,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'TouchMatch.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -144,10 +142,9 @@ STORAGES = {
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-CORS_ALLOWED_ORIGINS = [
-    "http://192.168.1.15:5500",
-    "http://127.0.0.1:5500",
-]
+CORS_ALLOW_ALL_ORIGINS=True
+
+CSRF_TRUSTED_ORIGINS = ["https://touchmatch-production.up.railway.app"]
 
 
 
