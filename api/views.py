@@ -190,18 +190,19 @@ def close_room(request):
         return JsonResponse({'message': 'Invalid JSON body.'}, status=400)
 
     try:
-        room = Room.objects.get(room_id)
+        room = Room.objects.get(id=room_id)
     except ObjectDoesNotExist:
         return JsonResponse({'message' : 'Room does not exist'})
     
-    room = Room.objects.get(room_id)
-    room.update(active=False)
+    room.active=False
+    room.save()
     games = Game.objects.filter(room=room)
-    games.update(active = False)
+    if games.exists():
+        games.update(active = False)
 
     return JsonResponse({
         'message' : 'success'
-    }, 200)
+    }, status=200)
     
 
 @csrf_exempt
