@@ -17,5 +17,5 @@ urlpatterns = [
     path('room/close', close_room),
     path('esp32/all/<int:user_id>', get_esp32_list_from_user),
     path('game/start/<int:game_id>', start_game),
-    # path('game/leaderboard/<int:game_id>'),
+    # path('game/leaderboard/<int:game_id>', game_leaderboard),
 ]
