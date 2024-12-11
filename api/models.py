@@ -21,7 +21,7 @@ class Room(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
-        return f"Sala {self.code}"
+        return f"Sala #{self.pk}"
     
     class Meta:
         verbose_name = "Sala"
@@ -52,7 +52,7 @@ class Game(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Partida {self.room.code}-{self.pk}"
+        return f"Partida #{self.room.pk}-{self.pk}"
     
     class Meta:
         verbose_name = "Partida"
