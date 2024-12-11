@@ -115,7 +115,7 @@ def create_room(request):
         return JsonResponse({'message': 'User does not exist.'}, status=400)
     
     room = Room.objects.filter(user=user, active=True)
-    if room:
+    if (room):
         return JsonResponse({'message': 'User can only have one active room'}, status=400)
 
     # Crear la sala (Room) con los datos proporcionados
@@ -144,6 +144,7 @@ def create_room(request):
 def join_room(request):
     if request.method != "POST":
         return JsonResponse({'message': 'Only POST method is allowed.'}, status=405)
+    
     try:
         # Parsear el cuerpo de la solicitud como JSON
         body = json.loads(request.body)
@@ -153,24 +154,28 @@ def join_room(request):
         return JsonResponse({'message': 'Invalid JSON body.'}, status=400)
 
     try:
-        esp32 = ESP32.objects.get(esp32_id)
+        esp32 = ESP32.objects.get(id=esp32_id)
     except ObjectDoesNotExist:
-        return JsonResponse({'message' : 'User does not exist'})
+        return JsonResponse({'message': 'ESP32 does not exist'}, status=404)
     
     try:
-        room = Room.objects.get(room_id)
+        room = Room.objects.get(id=room_id)
     except ObjectDoesNotExist:
-        return JsonResponse({'message' : 'Room does not exist'})
-    
-    last_game = Game.objects.filter(room=room).latest('datetime_created')
+        return JsonResponse({'message': 'Room does not exist'}, status=404)
+
+    # Verificar si hay un juego asociado con la sala
+    last_game = Game.objects.filter(room=room).order_by('-datetime_created').first()
+    if not last_game:
+        return JsonResponse({'message': 'No games found for the specified room.'}, status=404)
+
+    # Registrar al usuario en el juego
     user_reg = UserRegistration.objects.create(esp32=esp32, game=last_game)
     return JsonResponse({
-        'game_registered' : {
-            'level' : last_game.level,
-            'room' : last_game.room.pk
+        'game_registered': {
+            'level': last_game.level,
+            'room': last_game.room.pk
         },
     })
-    
 
 
 @csrf_exempt
