@@ -167,8 +167,36 @@ def join_room(request):
     return JsonResponse({
         'game_registered' : {
             'level' : last_game.level,
+            'room' : last_game.room.pk
         },
     })
+    
+
+
+@csrf_exempt
+def close_room(request):
+    if request.method != "POST":
+        return JsonResponse({'message': 'Only POST method is allowed.'}, status=405)
+    try:
+        # Parsear el cuerpo de la solicitud como JSON
+        body = json.loads(request.body)
+        room_id = body.get("room_id")
+    except json.JSONDecodeError:
+        return JsonResponse({'message': 'Invalid JSON body.'}, status=400)
+
+    try:
+        room = Room.objects.get(room_id)
+    except ObjectDoesNotExist:
+        return JsonResponse({'message' : 'Room does not exist'})
+    
+    room = Room.objects.get(room_id)
+    room.update(active=False)
+    games = Game.objects.filter(room=room)
+    games.update(active = False)
+
+    return JsonResponse({
+        'message' : 'success'
+    }, 200)
     
 
 @csrf_exempt
