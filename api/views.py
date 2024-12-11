@@ -7,6 +7,7 @@ import time
 from django.core.exceptions import ObjectDoesNotExist
 import json
 from django.views.decorators.csrf import csrf_exempt
+from datetime import datetime
 
 # Create your views here.
 class UserViewSet(viewsets.ModelViewSet):
@@ -222,3 +223,24 @@ def get_esp32_list_from_user(request, user_id:int):
         }
     } for esp32 in esp32_list]}
     return JsonResponse(resp, status=200)
+
+@csrf_exempt
+def start_game(request, game_id):
+    if request.method != 'PUT':
+        return JsonResponse({'message': 'Only PUT method is allowed.'}, status=405)
+
+    try:
+        game = Game.objects.get(pk=game_id)
+    except ObjectDoesNotExist:
+        return JsonResponse({"message" : "Game does not exist"}, status=400)
+    
+    game.begin_time = datetime.now()
+    game.save()  
+
+    return JsonResponse({
+        "message": "Game started successfully",
+        "game_id": game.pk,
+        "begin_time": game.begin_time.isoformat(),  # Devolver la hora en formato ISO 8601
+        "end_time": game.end_time.isoformat(),  # Devolver la hora en formato ISO 8601
+        "active": game.active,
+    }, status=200)

@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 import random
+from datetime import timedelta
 
 # Create your models here.
 class ESP32(models.Model):
@@ -49,6 +50,11 @@ class Game(models.Model):
                     master_num = num = 2
                 seq += f'{master_color}{master_num}{color}{num}-'
             self.sequence = seq
+
+        if self.begin_time and self.end_time == None:
+            self.end_time = self.begin_time + timedelta(minutes=2)
+            self.active = True
+
         super().save(*args, **kwargs)
 
     def __str__(self):
