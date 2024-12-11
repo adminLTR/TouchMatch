@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-+u^!v64u)c5g*^x*(m**e_rnvlpo_0tsygv9$#ywclnj=mk87w
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'https://touchmatch-production.up.railway.app/']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'touchmatch-production.up.railway.app/']
 
 
 # Application definition
