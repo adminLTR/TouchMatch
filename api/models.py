@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 import random
 from datetime import timedelta
 import datetime
+from django.utils import timezone
 
 # Create your models here.
 class ESP32(models.Model):
@@ -68,11 +69,11 @@ class Game(models.Model):
     def get_time_remaining(self):
         if not self.end_time:
             return 0
-        time_remaining = self.end_time - datetime.datetime.now()
-        if time_remaining<0:
+        time_remaining = self.end_time - timezone.now()
+        if time_remaining.seconds<0:
             self.active = False
             self.save()
-        return time_remaining
+        return time_remaining.seconds
 
 class UserRegistration(models.Model):
     esp32 = models.ForeignKey(ESP32, on_delete=models.CASCADE, verbose_name="Placa")

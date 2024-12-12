@@ -167,7 +167,7 @@ def event_stream_game_leaderboard(game:Game):
             yield 'event: game_end\ndata: {"time_remaining": 0, "leaderboard" : ' + str(json.dumps(resp)) + '}\n\n'
             break   
     
-        yield 'data: {"time_remaining": ' + time_remaining + ', "leaderboard" : ' + str(json.dumps(resp)) + '}\n\n'
+        yield 'data: {"time_remaining": ' + str(time_remaining) + ', "leaderboard" : ' + str(json.dumps(resp)) + '}\n\n'
         time.sleep(sec)
 
 
