@@ -33,9 +33,6 @@ class UserRegistrationViewSet(viewsets.ModelViewSet):
 @csrf_exempt
 def esp32_game_info(request, code):
     """Vista que responde con Server-Sent Events para un ESP32."""
-    # if request.method != "POST":
-    #     return JsonResponse({'message': 'Only POST method is allowed.'}, status=405)
-    # code = request.GET.get("code")
     if not code:
         return JsonResponse({'message': 'No ESP32 code provided.'}, status=400)
 
@@ -73,30 +70,32 @@ def event_stream_esp32_game_info(esp32):
     while True:
         # Actualiza el estado del objeto desde la base de datos
         game.refresh_from_db()
+        last_user_registration.refresh_from_db()
+
+        sec = 2
+        if game.level > 2:
+            sec = 1
 
         if not game.active:
             # Envía un evento final al cliente y cierra la conexión
             yield "event: game_end\ndata: {\"message\": \"The game has ended.\"}\n\n"
-            break
+            time.sleep(0.5)
+            continue
 
         # Enviar datos del juego en curso
         resp = {
             'user_registration': last_user_registration.pk,
             'level': game.level,
             'active': game.active,
-            'sequence': game.sequence,
+            'sequence': game.sequence.split('-')[last_user_registration.good_points + last_user_registration.bad_points],
         }
         yield f"data: {json.dumps(resp)}\n\n"  # Enviar respuesta en formato SSE
-        time.sleep(0.5)
+        time.sleep(sec)
 
 
 @csrf_exempt
 def game_leaderboard(request, game_id):
     """Vista que responde con Server-Sent Events para un ESP32."""
-    # if request.method != "POST":
-    #     return JsonResponse({'message': 'Only POST method is allowed.'}, status=405)
-    # code = request.GET.get("code")
-    
     try:
         # Validar que el ESP32 existe con el código proporcionado
         game = Game.objects.get(pk=game_id)
@@ -104,28 +103,6 @@ def game_leaderboard(request, game_id):
         return JsonResponse({'message': 'No Game found with the provided code.'}, status=400)
     except json.JSONDecodeError:
         return JsonResponse({'message': 'Invalid JSON body.'}, status=400)
-    
-    # time_remaining = game.get_time_remaining()
-    
-    # if not game.active:
-    #     user_registrations = UserRegistration.objects.filter(game=game).order_by("total")
-    #     resp = [
-    #         {
-    #             'position' : i+1,
-    #             'user' : {
-    #                 'id' : user_registrations[i].esp32.user.pk,
-    #                 'username' : user_registrations[i].esp32.user.username,
-    #                 'ESP32' : user_registrations[i].esp32.code,
-    #             },
-    #             'good_points' : user_registrations[i].good_points,
-    #             'bad_points' : user_registrations[i].bad_points,
-    #             'total' : user_registrations[i].total,
-    #             'avg_time_react' : user_registrations[i].avg_time_react,
-    #         } for i in range(len(user_registrations))
-    #     ]
-
-    #     return JsonResponse({'message': 'Game is not in progress', 'data' : resp}, status=200)
-        
 
     # Crear la respuesta con el flujo de eventos SSE
     response = StreamingHttpResponse(event_stream_game_leaderboard(game), content_type='text/event-stream')
