@@ -90,7 +90,7 @@ def event_stream_esp32_game_info(esp32):
             'sequence': game.sequence.split('-')[last_user_registration.good_points + last_user_registration.bad_points],
         }
         yield f"data: {json.dumps(resp)}\n\n"  # Enviar respuesta en formato SSE
-        time.sleep(sec)
+        time.sleep(.1)
 
 
 @csrf_exempt
@@ -303,3 +303,34 @@ def start_game(request, game_id):
         "end_time": game.end_time.isoformat(),  # Devolver la hora en formato ISO 8601
         "active": game.active,
     }, status=200)
+
+@csrf_exempt
+def update_data_game_esp32(request, user_registration_id:int):
+    if request.method != "PUT":
+        return JsonResponse({'message': 'Only PUT method is allowed.'}, status=405)
+    
+    try:
+        # Parsear el cuerpo de la solicitud como JSON
+        body = json.loads(request.body)
+        point = body.get("point")
+        react = body.get("react")
+
+    except json.JSONDecodeError:
+        return JsonResponse({'message': 'Invalid JSON body.'}, status=400)
+
+    try:
+        user_registration = UserRegistration.objects.get(pk=user_registration_id)
+    except ObjectDoesNotExist:
+        return JsonResponse({"message" : "User Registration does not exist"}, status=400)
+    
+    if point == 1:
+        user_registration.good_points += 1
+        user_registration.react_time_sum += react
+        user_registration.avg_time_react = user_registration.react_time_sum / (user_registration.good_points)
+    else:
+        user_registration.bad_points += 1
+
+
+    user_registration.save()
+
+    return JsonResponse({"message" : "Points updated successfully"}, status=200)

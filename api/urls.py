@@ -18,4 +18,5 @@ urlpatterns = [
     path('esp32/all/<int:user_id>', get_esp32_list_from_user),
     path('game/start/<int:game_id>', start_game),
     path('game/leaderboard/<int:game_id>', game_leaderboard),
+    path('esp32/game/points/<int:user_registration_id>', update_data_game_esp32)
 ]

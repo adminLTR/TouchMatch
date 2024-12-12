@@ -83,6 +83,7 @@ class UserRegistration(models.Model):
     bad_points = models.PositiveSmallIntegerField(default=0, null=True, blank=True, verbose_name="Errores")
     total = models.SmallIntegerField(default=0, null=True, blank=True, verbose_name="Total")
     avg_time_react = models.FloatField(default=0, null=True, blank=True, verbose_name="Tiempo promedio de reacción")
+    react_time_sum = models.FloatField(default=0, null=True, blank=True, verbose_name="Suma tiempo de reacción")
 
     def save(self):
         self.total = self.good_points - self.bad_points
