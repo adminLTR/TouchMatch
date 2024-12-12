@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 import random
 from datetime import timedelta
+import datetime
 
 # Create your models here.
 class ESP32(models.Model):
@@ -64,13 +65,25 @@ class Game(models.Model):
         verbose_name = "Partida"
         verbose_name_plural = "Partidas"
 
+    def get_time_remaining(self):
+        time_remaining = self.end_time - datetime.now()
+        if time_remaining<0:
+            self.active = False
+            self.save()
+        return time_remaining
+
 class UserRegistration(models.Model):
     esp32 = models.ForeignKey(ESP32, on_delete=models.CASCADE, verbose_name="Placa")
     game = models.ForeignKey(Game, on_delete=models.CASCADE, verbose_name="Partida")
     datetime_registration = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de registro")
     good_points = models.PositiveSmallIntegerField(default=0, null=True, blank=True, verbose_name="Aciertos")
     bad_points = models.PositiveSmallIntegerField(default=0, null=True, blank=True, verbose_name="Errores")
+    total = models.PositiveSmallIntegerField(default=0, null=True, blank=True, verbose_name="Total")
     avg_time_react = models.FloatField(default=0, null=True, blank=True, verbose_name="Tiempo promedio de reacción")
+
+    def save(self):
+        self.total = self.good_points - self.bad_points
+        return super().save()
 
     def __str__(self):
         return f"{self.esp32.user.username} ({self.esp32}) - {self.game}"
