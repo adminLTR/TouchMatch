@@ -50,7 +50,7 @@ class Game(models.Model):
                 num = random.randint(1, 2)
                 if self.level == 1:
                     master_num = num = 2
-                seq += f'{master_color}{master_num}{color}{num}-'
+                seq += f'{master_color}{color}{num}{master_num}-'
             self.sequence = seq
 
         if self.begin_time and self.end_time == None:
