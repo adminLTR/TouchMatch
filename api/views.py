@@ -72,9 +72,7 @@ def event_stream_esp32_game_info(esp32):
         game.refresh_from_db()
         last_user_registration.refresh_from_db()
 
-        sec = 2
-        if game.level > 2:
-            sec = 1
+        time_remaining = game.get_time_remaining()
 
         if not game.active:
             # Envía un evento final al cliente y cierra la conexión
@@ -90,7 +88,7 @@ def event_stream_esp32_game_info(esp32):
             'sequence': game.sequence.split('-')[last_user_registration.good_points + last_user_registration.bad_points],
         }
         yield f"data: {json.dumps(resp)}\n\n"  # Enviar respuesta en formato SSE
-        time.sleep(.1)
+        time.sleep(.01)
 
 
 @csrf_exempt
@@ -333,4 +331,7 @@ def update_data_game_esp32(request, user_registration_id:int):
 
     user_registration.save()
 
-    return JsonResponse({"message" : "Points updated successfully"}, status=200)
+    return JsonResponse({
+        'good_points' : user_registration.good_points,
+        'bad_points': user_registration.bad_points,
+    }, status=200)
