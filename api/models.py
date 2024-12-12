@@ -81,7 +81,7 @@ class UserRegistration(models.Model):
     datetime_registration = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de registro")
     good_points = models.PositiveSmallIntegerField(default=0, null=True, blank=True, verbose_name="Aciertos")
     bad_points = models.PositiveSmallIntegerField(default=0, null=True, blank=True, verbose_name="Errores")
-    total = models.PositiveSmallIntegerField(default=0, null=True, blank=True, verbose_name="Total")
+    total = models.SmallIntegerField(default=0, null=True, blank=True, verbose_name="Total")
     avg_time_react = models.FloatField(default=0, null=True, blank=True, verbose_name="Tiempo promedio de reacción")
 
     def save(self):
