@@ -105,26 +105,26 @@ def game_leaderboard(request, game_id):
     except json.JSONDecodeError:
         return JsonResponse({'message': 'Invalid JSON body.'}, status=400)
     
-    time_remaining = game.get_time_remaining()
+    # time_remaining = game.get_time_remaining()
     
-    if not game.active:
-        user_registrations = UserRegistration.objects.filter(game=game).order_by("total")
-        resp = [
-            {
-                'position' : i+1,
-                'user' : {
-                    'id' : user_registrations[i].esp32.user.pk,
-                    'username' : user_registrations[i].esp32.user.username,
-                    'ESP32' : user_registrations[i].esp32.code,
-                },
-                'good_points' : user_registrations[i].good_points,
-                'bad_points' : user_registrations[i].bad_points,
-                'total' : user_registrations[i].total,
-                'avg_time_react' : user_registrations[i].avg_time_react,
-            } for i in range(len(user_registrations))
-        ]
+    # if not game.active:
+    #     user_registrations = UserRegistration.objects.filter(game=game).order_by("total")
+    #     resp = [
+    #         {
+    #             'position' : i+1,
+    #             'user' : {
+    #                 'id' : user_registrations[i].esp32.user.pk,
+    #                 'username' : user_registrations[i].esp32.user.username,
+    #                 'ESP32' : user_registrations[i].esp32.code,
+    #             },
+    #             'good_points' : user_registrations[i].good_points,
+    #             'bad_points' : user_registrations[i].bad_points,
+    #             'total' : user_registrations[i].total,
+    #             'avg_time_react' : user_registrations[i].avg_time_react,
+    #         } for i in range(len(user_registrations))
+    #     ]
 
-        return JsonResponse({'message': 'Game is not in progress', 'data' : resp}, status=200)
+    #     return JsonResponse({'message': 'Game is not in progress', 'data' : resp}, status=200)
         
 
     # Crear la respuesta con el flujo de eventos SSE

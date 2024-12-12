@@ -20,7 +20,7 @@ class Room(models.Model):
     datetime_created = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de creación")
     individual = models.BooleanField(default=True, verbose_name="Individual")
     active = models.BooleanField(default=True, verbose_name="Activa")
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, verbose_name="Creator")
 
     def __str__(self):
         return f"Sala #{self.pk}"
@@ -66,7 +66,9 @@ class Game(models.Model):
         verbose_name_plural = "Partidas"
 
     def get_time_remaining(self):
-        time_remaining = self.end_time - datetime.now()
+        if not self.end_time:
+            return 0
+        time_remaining = self.end_time - datetime.datetime.now()
         if time_remaining<0:
             self.active = False
             self.save()

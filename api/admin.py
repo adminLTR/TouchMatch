@@ -10,7 +10,7 @@ class ESP32Admin(admin.ModelAdmin):
 
 @admin.register(Room)
 class RoomAdmin(admin.ModelAdmin):
-    list_display = ("id", "datetime_created", "individual","active")
+    list_display = ("id", "user", "datetime_created", "individual","active")
     list_filter = ("active", "individual")
 
 
