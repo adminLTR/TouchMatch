@@ -27,7 +27,8 @@ SECRET_KEY = 'django-insecure-+u^!v64u)c5g*^x*(m**e_rnvlpo_0tsygv9$#ywclnj=mk87w
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'touchmatch-production.up.railway.app']
+# ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'touchmatch-production.up.railway.app']
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -150,13 +151,13 @@ CSRF_TRUSTED_ORIGINS = ["https://touchmatch-production.up.railway.app"]
 
 JAZZMIN_SETTINGS = {
     # title of the window (Will default to current_admin_site.site_title if absent or None)
-    "site_title": "TouchMatch",
+    "site_title": "ButtonBlink",
 
     # Title on the login screen (19 chars max) (defaults to current_admin_site.site_header if absent or None)
-    "site_header": "TouchMatch",
+    "site_header": "ButtonBlink",
 
     # Title on the brand (19 chars max) (defaults to current_admin_site.site_header if absent or None)
-    "site_brand": "TouchMatch",
+    "site_brand": "ButtonBlink",
 
     # Logo to use for your site, must be present in static files, used for brand on top left
     # "site_logo": "books/img/logo.png",
@@ -174,10 +175,10 @@ JAZZMIN_SETTINGS = {
     "site_icon": None,
 
     # Welcome text on the login screen
-    "welcome_sign": "Welcome to the library",
+    "welcome_sign": "Welcome to ButtonBlink",
 
     # Copyright on the footer
-    "copyright": "Acme Library Ltd",
+    "copyright": "Acme ButtonBlink Ltd",
 
     # List of model admins to search from the search bar, search bar omitted if excluded
     # If you want to use a single search field you dont need to use a list, you can use a simple string 
