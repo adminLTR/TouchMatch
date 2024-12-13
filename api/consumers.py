@@ -9,7 +9,7 @@ class GameConsumer(WebsocketConsumer):
         self.accept()
 
         self.esp32_code = self.scope['url_route']['kwargs']['esp32_code']
-        self.game_group_name = f'esp_room_{self.esp32_code}'
+        self.room_group_name = f'esp_room_{self.esp32_code}'
 
         async_to_sync(self.channel_layer.group_add)(
             self.room_group_name,
@@ -24,7 +24,7 @@ class GameConsumer(WebsocketConsumer):
     def disconnect(self, close_code):
         # Salir del grupo de WebSocket
         self.channel_layer.group_discard(
-            self.game_group_name,
+            self.room_group_name,
             self.channel_name
         )
 
@@ -42,24 +42,35 @@ class GameConsumer(WebsocketConsumer):
                 user_registration.good_points += 1
                 user_registration.react_time_sum += react
                 user_registration.avg_time_react = user_registration.react_time_sum / (user_registration.good_points)
-            else:
+            elif point == -1:
                 user_registration.bad_points += 1
 
             user_registration.save()
+            print(game.get_time_remaining())
 
             async_to_sync(self.channel_layer.group_send)(
                 self.room_group_name,
                 {
+                    'type' : 'chat_message',
                     'good_points' : user_registration.good_points,
                     'bad_points': user_registration.bad_points,
+                    'level': game.level,
+                    'active': game.active,
+                    'sequence': game.sequence.split('-')[user_registration.good_points + user_registration.bad_points]
                 }
             )
 
     def chat_message(self, event):
         good_points = event["good_points"]
         bad_points = event["bad_points"]
+        level = event["level"]
+        active = event["active"]
+        sequence = event["sequence"]
         self.send(text_data=json.dumps({
             'type' : 'chat',
             'good_points' : good_points,
-            'bad_points' : bad_points
+            'bad_points' : bad_points,
+            'level' : level,
+            'active' : active,
+            'sequence' : sequence,
         }))
