@@ -119,7 +119,7 @@ def event_stream_game_leaderboard(game:Game):
         if game.level > 2:
             sec = 1
 
-        user_registrations = UserRegistration.objects.filter(game=game).order_by("total")
+        user_registrations = UserRegistration.objects.filter(game=game).order_by("-total")
         resp = [
             {
                 'position' : i+1,
@@ -145,6 +145,71 @@ def event_stream_game_leaderboard(game:Game):
         yield 'data: {"time_remaining": ' + str(time_remaining) + ', "leaderboard" : ' + str(json.dumps(resp)) + '}\n\n'
         time.sleep(sec)
 
+def lobby_view(request, user_id, room_id):
+    try:
+        user = User.objects.get(pk=user_id)
+    except ObjectDoesNotExist:
+        return JsonResponse({'message': 'No USER found with the provided code.'}, status=400)
+    
+    try:
+        room = Room.objects.get(pk=room_id)
+    except ObjectDoesNotExist:
+        return JsonResponse({'message': 'No ROOM found with the provided code.'}, status=400)
+    
+    response = StreamingHttpResponse(event_stream_lobby(user, room), content_type='text/event-stream')
+    response['Cache-Control'] = 'no-cache'  # Evitar caché para mantener actualizaciones en tiempo real
+    return response
+
+def event_stream_lobby(user:User, room:Room):
+    # Mientras el juego esté activo, envía actualizaciones
+    while True:
+        room.refresh_from_db()
+        if not room.active:
+            yield "event: room_closed\ndata:" + json.dumps({
+                'message' : 'Room closed',
+            }) + '\n\n'
+            break
+        game = Game.objects.filter(room=room).latest()
+        
+        
+        user_registrations = UserRegistration.objects.filter(game=game)
+        
+        exists = user_registrations.filter(esp32__user=user).exists()
+
+        if not exists:
+            yield 'event: not_joined\ndata: ' + json.dumps({
+                'message' : 'User not joined the room',
+            }) + '\n\n'
+            break
+
+        participants = [
+            {
+                'user' : {
+                    'id' : user_registrations[i].esp32.user.pk,
+                    'username' : user_registrations[i].esp32.user.username,
+                    'ESP32' : user_registrations[i].esp32.code,
+                },
+            } for i in range(len(user_registrations))
+        ]
+
+        resp = {
+            'is_creator' : room.user.pk == user.pk,
+            'game' : {
+                'id' : game.pk,
+                'active' : game.active,
+                'level' : game.level
+            },
+            'room_id' : room.pk,
+            'participants' : participants,
+        }
+
+        if game.active:
+            # Envía un evento final al cliente y cierra la conexión
+            yield 'event: game_start\ndata: ' + json.dumps(resp) + '\n\n'
+            break   
+    
+        yield 'data: ' + json.dumps(resp) + '\n\n'
+        time.sleep(1)
 
 @csrf_exempt
 def create_room(request):
@@ -231,7 +296,10 @@ def join_room(request):
         'game_registered': {
             'id' : last_game.pk,
             'level': last_game.level,
-            'room': last_game.room.pk
+            'room': {
+                'id':last_game.room.pk,
+                'creator' : last_game.room.user.pk
+            }
         },
     })
 
@@ -249,6 +317,33 @@ def close_room(request):
 
     try:
         room = Room.objects.get(id=room_id)
+    except ObjectDoesNotExist:
+        return JsonResponse({'message' : 'Room does not exist'})
+    
+    room.active=False
+    room.save()
+    games = Game.objects.filter(room=room)
+    if games.exists():
+        games.update(active = False)
+
+    return JsonResponse({
+        'message' : 'success'
+    }, status=200)
+    
+
+@csrf_exempt
+def close_room_by_game(request):
+    if request.method != "POST":
+        return JsonResponse({'message': 'Only POST method is allowed.'}, status=405)
+    try:
+        # Parsear el cuerpo de la solicitud como JSON
+        body = json.loads(request.body)
+        game_id = body.get("game_id")
+    except json.JSONDecodeError:
+        return JsonResponse({'message': 'Invalid JSON body.'}, status=400)
+
+    try:
+        room = Game.objects.get(pk=game_id).room
     except ObjectDoesNotExist:
         return JsonResponse({'message' : 'Room does not exist'})
     
@@ -335,3 +430,25 @@ def update_data_game_esp32(request, user_registration_id:int):
         'good_points' : user_registration.good_points,
         'bad_points': user_registration.bad_points,
     }, status=200)
+
+@csrf_exempt
+def get_user(request):
+    if request.method!='POST':
+        return JsonResponse({"message":"Only POST is allowed"}, status=400)
+    try:
+        # Parsear el cuerpo de la solicitud como JSON
+        body = json.loads(request.body)
+        username = body.get("username")
+
+    except json.JSONDecodeError:
+        return JsonResponse({'message': 'Invalid JSON body.'}, status=400)
+    
+    user = User.objects.filter(username=username).first()
+    if not user:
+        return JsonResponse({'message': 'No user found.'}, status=400)
+    
+    return JsonResponse({
+        'id' : user.pk,
+        'username' : user.username,
+    })
+

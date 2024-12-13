@@ -43,7 +43,7 @@ class Game(models.Model):
         if not self.pk:
             # 1212-2131-2112-1121-2121-1221-1232-1222-1233-1233
             seq = ''
-            for i in range(100):
+            for i in range(400):
                 master_color = random.randint(0, 2)
                 master_num = random.randint(1, 2)
                 color = random.randint(0, 2)
@@ -65,6 +65,7 @@ class Game(models.Model):
     class Meta:
         verbose_name = "Partida"
         verbose_name_plural = "Partidas"
+        get_latest_by = "datetime_created"
 
     def get_time_remaining(self):
         if not self.end_time:
@@ -86,9 +87,9 @@ class UserRegistration(models.Model):
     avg_time_react = models.FloatField(default=0, null=True, blank=True, verbose_name="Tiempo promedio de reacción")
     react_time_sum = models.FloatField(default=0, null=True, blank=True, verbose_name="Suma tiempo de reacción")
 
-    def save(self):
+    def save(self, *args, **kwargs):  # Acepta argumentos adicionales
         self.total = self.good_points - self.bad_points
-        return super().save()
+        super().save(*args, **kwargs)  # Llama al método `save` original
 
     def __str__(self):
         return f"{self.esp32.user.username} ({self.esp32}) - {self.game}"

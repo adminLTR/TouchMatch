@@ -15,8 +15,13 @@ urlpatterns = [
     path('room/create', create_room),
     path('room/join', join_room),
     path('room/close', close_room),
+    path('room/close/bygame', close_room_by_game),
     path('esp32/all/<int:user_id>', get_esp32_list_from_user),
     path('game/start/<int:game_id>', start_game),
     path('game/leaderboard/<int:game_id>', game_leaderboard),
-    path('esp32/game/points/<int:user_registration_id>', update_data_game_esp32)
+    path('esp32/game/points/<int:user_registration_id>', update_data_game_esp32),
+
+
+    path('users/get_username', get_user),
+    path('lobby/<int:user_id>/<int:room_id>', lobby_view)
 ]
