@@ -70,9 +70,10 @@ class Game(models.Model):
         if not self.end_time:
             return 0
         time_remaining = self.end_time - timezone.now()
-        if time_remaining.seconds<0:
+        if self.end_time<timezone.now():
             self.active = False
             self.save()
+            return 0
         return time_remaining.seconds
 
 class UserRegistration(models.Model):

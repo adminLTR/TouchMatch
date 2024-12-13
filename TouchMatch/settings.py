@@ -35,7 +35,7 @@ ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
     'jazzmin',
-    'channels',
+    # 'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -78,8 +78,8 @@ TEMPLATES = [
     },
 ]
 
-# WSGI_APPLICATION = 'TouchMatch.wsgi.application'
-ASGI_APPLICATION = 'TouchMatch.asgi.application'
+WSGI_APPLICATION = 'TouchMatch.wsgi.application'
+# ASGI_APPLICATION = 'TouchMatch.asgi.application'
 
 CHANNEL_LAYERS = {
     'default' : {
@@ -89,17 +89,22 @@ CHANNEL_LAYERS = {
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.getenv("DBNAME"),
+#         'USER': os.getenv("DBUSER"),
+#         'PASSWORD': os.getenv("DBPASSWORD"),
+#         'HOST': os.getenv("DBHOST"),
+#         'PORT': os.getenv("DBPORT"),
+#     }
+# }
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv("DBNAME"),
-        'USER': os.getenv("DBUSER"),
-        'PASSWORD': os.getenv("DBPASSWORD"),
-        'HOST': os.getenv("DBHOST"),
-        'PORT': os.getenv("DBPORT"),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -125,7 +130,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+# TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Lima'
 
 USE_I18N = True
 

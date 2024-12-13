@@ -88,7 +88,7 @@ def event_stream_esp32_game_info(esp32):
             'sequence': game.sequence.split('-')[last_user_registration.good_points + last_user_registration.bad_points],
         }
         yield f"data: {json.dumps(resp)}\n\n"  # Enviar respuesta en formato SSE
-        time.sleep(.01)
+        time.sleep(1)
 
 
 @csrf_exempt
